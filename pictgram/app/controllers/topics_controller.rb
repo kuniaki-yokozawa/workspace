@@ -1,9 +1,7 @@
 class TopicsController < ApplicationController
-  def index
-    @topics = Topic.all.includes(:favorite_users)
-  end
+  before_action :authenticate_user, only: [:new, :create]
 
-  def new
+    def new
       @topic = Topic.new
     end
 
@@ -11,11 +9,16 @@ class TopicsController < ApplicationController
       @topic = current_user.topics.new(topic_params)
 
       if @topic.save
-        redirect_to topics_path, success: '投稿に成功しました'
+        redirect_to topics_path, success: "投稿に成功しました"
       else
         flash.now[:danger] = "投稿に失敗しました"
         render :new
       end
+    end
+
+    def index
+      @topics = Topic.all.includes(:favorite_users)
+      @comment = Comment.new
     end
 
     private
@@ -23,3 +26,4 @@ class TopicsController < ApplicationController
       params.require(:topic).permit(:image, :description)
     end
   end
+  
